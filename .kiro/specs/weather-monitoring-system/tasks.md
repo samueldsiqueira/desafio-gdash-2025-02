@@ -8,7 +8,7 @@
   - Add health checks for each service
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6_
 
-- [x] 2. Implement NestJS API Service foundation
+- [-] 2. Implement NestJS API Service foundation
   - Initialize NestJS project with TypeScript
   - Configure MongoDB connection with Mongoose
   - Set up project structure (modules, controllers, services, DTOs, schemas)
@@ -17,7 +17,7 @@
   - Implement health check endpoint
   - _Requirements: 8.1, 8.7_
 
-- [ ] 2.1 Implement authentication and user management
+- [x] 2.1 Implement authentication and user management
   - Create User schema with email, password (hashed), name, role fields
   - Implement JWT strategy with Passport
   - Create auth module with login endpoint
@@ -26,7 +26,7 @@
   - Implement default user creation on startup
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 2.2 Write property test for JWT validation
+- [-] 2.2 Write property test for JWT validation
   - **Property 20: Valid credentials produce valid JWT**
   - **Validates: Requirements 6.1, 6.2**
 
