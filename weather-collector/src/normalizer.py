@@ -27,17 +27,17 @@ def normalize_weather_data(
     Raises:
         ValueError: If required fields are missing or invalid
     """
-    # Validate required fields
+    # Validate required fields (accept both snake_case and camelCase)
     required_fields = [
-        "temperature",
-        "humidity",
-        "wind_speed",
-        "condition",
-        "rain_probability",
+        ("temperature", "temperature"),
+        ("humidity", "humidity"),
+        ("wind_speed", "windSpeed"),
+        ("condition", "condition"),
+        ("rain_probability", "rainProbability"),
     ]
-    for field in required_fields:
-        if field not in weather_data:
-            raise ValueError(f"Missing required field: {field}")
+    for snake_case, camel_case in required_fields:
+        if snake_case not in weather_data and camel_case not in weather_data:
+            raise ValueError(f"Missing required field: {snake_case}")
 
     # Validate field types and ranges
     temperature = weather_data["temperature"]
@@ -48,7 +48,7 @@ def normalize_weather_data(
     if not isinstance(humidity, (int, float)) or not (0 <= humidity <= 100):
         raise ValueError(f"Invalid humidity value: {humidity}")
 
-    wind_speed = weather_data["wind_speed"]
+    wind_speed = weather_data.get("wind_speed", weather_data.get("windSpeed"))
     if not isinstance(wind_speed, (int, float)) or wind_speed < 0:
         raise ValueError(f"Invalid wind_speed value: {wind_speed}")
 
@@ -56,13 +56,13 @@ def normalize_weather_data(
     if not isinstance(condition, str) or not condition:
         raise ValueError(f"Invalid condition value: {condition}")
 
-    rain_probability = weather_data["rain_probability"]
+    rain_probability = weather_data.get("rain_probability", weather_data.get("rainProbability"))
     if not isinstance(rain_probability, (int, float)) or not (
         0 <= rain_probability <= 100
     ):
         raise ValueError(f"Invalid rain_probability value: {rain_probability}")
 
-    # Build normalized structure
+    # Build normalized structure (using camelCase for API compatibility)
     normalized = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "location": {
@@ -73,9 +73,9 @@ def normalize_weather_data(
         "weather": {
             "temperature": float(temperature),
             "humidity": int(humidity),
-            "wind_speed": float(wind_speed),
+            "windSpeed": float(wind_speed),
             "condition": str(condition),
-            "rain_probability": int(rain_probability),
+            "rainProbability": int(rain_probability),
         },
         "source": source,
     }
@@ -128,16 +128,16 @@ def validate_normalized_structure(data: dict[str, Any]) -> bool:
         if field not in location:
             raise ValueError(f"Missing location field: {field}")
 
-    # Check weather fields
+    # Check weather fields (using camelCase)
     weather = data["weather"]
     if not isinstance(weather, dict):
         raise ValueError("weather must be a dictionary")
     weather_fields = [
         "temperature",
         "humidity",
-        "wind_speed",
+        "windSpeed",
         "condition",
-        "rain_probability",
+        "rainProbability",
     ]
     for field in weather_fields:
         if field not in weather:

@@ -17,9 +17,9 @@ type Location struct {
 type Weather struct {
 	Temperature     float64 `json:"temperature"`
 	Humidity        float64 `json:"humidity"`
-	WindSpeed       float64 `json:"wind_speed"`
+	WindSpeed       float64 `json:"windSpeed"`
 	Condition       string  `json:"condition"`
-	RainProbability float64 `json:"rain_probability"`
+	RainProbability float64 `json:"rainProbability"`
 }
 
 // WeatherMessage represents the complete weather message structure
@@ -85,13 +85,13 @@ func validateWeatherMessage(msg *WeatherMessage) error {
 		return ValidationError{Field: "weather.humidity", Message: "must be between 0 and 100"}
 	}
 	if msg.Weather.WindSpeed < 0 {
-		return ValidationError{Field: "weather.wind_speed", Message: "must be non-negative"}
+		return ValidationError{Field: "weather.windSpeed", Message: "must be non-negative"}
 	}
 	if msg.Weather.Condition == "" {
 		return ValidationError{Field: "weather.condition", Message: "required field is missing"}
 	}
 	if msg.Weather.RainProbability < 0 || msg.Weather.RainProbability > 100 {
-		return ValidationError{Field: "weather.rain_probability", Message: "must be between 0 and 100"}
+		return ValidationError{Field: "weather.rainProbability", Message: "must be between 0 and 100"}
 	}
 
 	// Validate source

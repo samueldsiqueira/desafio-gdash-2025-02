@@ -42,9 +42,9 @@ class TestNormalizeWeatherData:
         assert result["location"]["longitude"] == -46.6333
         assert result["weather"]["temperature"] == 25.5
         assert result["weather"]["humidity"] == 60
-        assert result["weather"]["wind_speed"] == 15.0
+        assert result["weather"]["windSpeed"] == 15.0
         assert result["weather"]["condition"] == "partly_cloudy"
-        assert result["weather"]["rain_probability"] == 30
+        assert result["weather"]["rainProbability"] == 30
         assert result["source"] == "open-meteo"
 
     def test_normalize_custom_source(self):
@@ -259,9 +259,9 @@ class TestToJson:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -280,9 +280,9 @@ class TestToJson:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -305,9 +305,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -321,9 +321,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -340,9 +340,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -373,9 +373,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
         }
 
@@ -392,9 +392,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -412,9 +412,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
@@ -432,7 +432,7 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                # missing wind_speed, condition, rain_probability
+                # missing windSpeed, condition, rainProbability
             },
             "source": "open-meteo",
         }
@@ -440,7 +440,7 @@ class TestValidateNormalizedStructure:
         with pytest.raises(ValueError) as exc_info:
             validate_normalized_structure(data)
         
-        assert "wind_speed" in str(exc_info.value)
+        assert "windSpeed" in str(exc_info.value)
 
     def test_validate_location_not_dict(self):
         """Test validation fails when location is not a dict."""
@@ -450,9 +450,9 @@ class TestValidateNormalizedStructure:
             "weather": {
                 "temperature": 25.0,
                 "humidity": 60,
-                "wind_speed": 15.0,
+                "windSpeed": 15.0,
                 "condition": "clear",
-                "rain_probability": 30,
+                "rainProbability": 30,
             },
             "source": "open-meteo",
         }
