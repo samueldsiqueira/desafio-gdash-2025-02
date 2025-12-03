@@ -70,7 +70,7 @@
   - Test query ordering
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 4. Implement AI insights generation
+- [x] 4. Implement AI insights generation
   - Create insights service with statistical calculation methods
   - Implement calculation of averages, min, max, trends
   - Implement weather classification logic (cold, cool, pleasant, warm, hot)
@@ -79,29 +79,29 @@
   - Create GET endpoint to retrieve insights for a time period
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.6_
 
-- [ ] 4.1 Write property test for insights generation
+- [x] 4.1 Write property test for insights generation
   - **Property 13: Insights generation from historical data**
   - **Validates: Requirements 4.1**
 
-- [ ] 4.2 Write property test for statistical calculations
+- [x] 4.2 Write property test for statistical calculations
   - **Property 14: Statistical calculations are valid**
   - **Validates: Requirements 4.2**
 
-- [ ] 4.3 Write property test for weather classification
+- [x] 4.3 Write property test for weather classification
   - **Property 15: Weather classification assignment**
   - **Validates: Requirements 4.3**
 
-- [ ] 4.4 Write property test for extreme condition alerts
+- [x] 4.4 Write property test for extreme condition alerts
   - **Property 16: Extreme conditions generate alerts**
   - **Validates: Requirements 4.4**
 
-- [ ] 4.5 Write unit tests for insights service
+- [x] 4.5 Write unit tests for insights service
   - Test statistical calculations with known datasets
   - Test classification logic across temperature ranges
   - Test alert generation for extreme values
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 5. Implement data export functionality
+- [-] 5. Implement data export functionality
   - Install ExcelJS and csv-writer libraries
   - Create export service with CSV generation method
   - Create export service with XLSX generation method

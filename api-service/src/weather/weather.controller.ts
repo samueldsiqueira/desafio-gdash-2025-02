@@ -8,13 +8,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { WeatherService } from './weather.service';
+import { InsightsService } from './insights.service';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { QueryWeatherLogDto } from './dto/query-weather-log.dto';
+import { QueryInsightsDto } from './dto/query-insights.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('weather')
 export class WeatherController {
-  constructor(private readonly weatherService: WeatherService) {}
+  constructor(
+    private readonly weatherService: WeatherService,
+    private readonly insightsService: InsightsService,
+  ) {}
 
   // POST endpoint to receive weather data from worker (internal, no auth required)
   @Post('logs')
@@ -34,5 +39,12 @@ export class WeatherController {
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.weatherService.findOne(id);
+  }
+
+  // GET endpoint to retrieve AI insights for a time period (protected)
+  @Get('insights')
+  @UseGuards(JwtAuthGuard)
+  getInsights(@Query() query: QueryInsightsDto) {
+    return this.insightsService.getInsights(query);
   }
 }
