@@ -26,19 +26,19 @@
   - Implement default user creation on startup
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [-] 2.2 Write property test for JWT validation
+- [x] 2.2 Write property test for JWT validation
   - **Property 20: Valid credentials produce valid JWT**
   - **Validates: Requirements 6.1, 6.2**
 
-- [ ] 2.3 Write property test for user CRUD round-trip
+- [x] 2.3 Write property test for user CRUD round-trip
   - **Property 21: User CRUD round-trip consistency**
   - **Validates: Requirements 6.4**
 
-- [ ] 2.4 Write property test for protected endpoint authorization
+- [x] 2.4 Write property test for protected endpoint authorization
   - **Property 22: Protected endpoints reject invalid tokens**
   - **Validates: Requirements 6.5**
 
-- [ ] 2.5 Write unit tests for auth and user services
+- [x] 2.5 Write unit tests for auth and user services
   - Test login with valid/invalid credentials
   - Test user creation, update, deletion
   - Test JWT token generation and validation

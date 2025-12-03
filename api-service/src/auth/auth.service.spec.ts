@@ -41,24 +41,28 @@ describe('AuthService', () => {
    * Validates: Requirements 6.1, 6.2
    */
   describe('Property 20: Valid credentials produce valid JWT', () => {
+    // Pre-compute hashed passwords to avoid bcrypt overhead in property tests
+    let preHashedPassword: string;
+    const testPassword = 'testPassword123';
+
+    beforeAll(async () => {
+      preHashedPassword = await bcrypt.hash(testPassword, 10);
+    });
+
     it('should generate a valid JWT token for any valid user credentials', async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
             email: fc.emailAddress(),
-            password: fc.string({ minLength: 6, maxLength: 20 }),
             name: fc.string({ minLength: 1, maxLength: 50 }),
             role: fc.constantFrom('admin', 'user'),
           }),
           async (userData) => {
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(userData.password, 10);
-            
-            // Mock user in database
+            // Use pre-hashed password to avoid bcrypt overhead
             const mockUser = {
               _id: 'test-id-123',
               email: userData.email,
-              password: hashedPassword,
+              password: preHashedPassword,
               name: userData.name,
               role: userData.role,
             };
@@ -68,10 +72,10 @@ describe('AuthService', () => {
             const mockToken = 'mock.jwt.token';
             jest.spyOn(jwtService, 'sign').mockReturnValue(mockToken);
 
-            // Attempt login
+            // Attempt login with the known password
             const result = await authService.login({
               email: userData.email,
-              password: userData.password,
+              password: testPassword,
             });
 
             // Verify JWT token was generated
@@ -94,25 +98,22 @@ describe('AuthService', () => {
         ),
         { numRuns: 100 },
       );
-    });
+    }, 30000);
 
     it('should reject invalid credentials', async () => {
       await fc.assert(
         fc.asyncProperty(
           fc.record({
             email: fc.emailAddress(),
-            correctPassword: fc.string({ minLength: 6, maxLength: 20 }),
-            wrongPassword: fc.string({ minLength: 6, maxLength: 20 }),
+            wrongPassword: fc.string({ minLength: 6, maxLength: 20 }).filter(p => p !== testPassword),
             name: fc.string({ minLength: 1, maxLength: 50 }),
             role: fc.constantFrom('admin', 'user'),
-          }).filter(data => data.correctPassword !== data.wrongPassword),
+          }),
           async (userData) => {
-            const hashedPassword = await bcrypt.hash(userData.correctPassword, 10);
-            
             const mockUser = {
               _id: 'test-id-123',
               email: userData.email,
-              password: hashedPassword,
+              password: preHashedPassword,
               name: userData.name,
               role: userData.role,
             };
@@ -129,6 +130,106 @@ describe('AuthService', () => {
           },
         ),
         { numRuns: 100 },
+      );
+    }, 30000);
+  });
+
+  /**
+   * Unit tests for auth service
+   * Requirements: 6.1, 6.2, 6.3
+   */
+  describe('Unit Tests - Login functionality', () => {
+    it('should successfully login with valid credentials', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      const hashedPassword = await bcrypt.hash(loginDto.password, 10);
+      const mockUser = {
+        _id: 'user-id-123',
+        email: loginDto.email,
+        password: hashedPassword,
+        name: 'Test User',
+        role: 'user',
+      };
+
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(mockUser as any);
+      jest.spyOn(jwtService, 'sign').mockReturnValue('mock.jwt.token');
+
+      const result = await authService.login(loginDto);
+
+      expect(result).toHaveProperty('access_token');
+      expect(result.access_token).toBe('mock.jwt.token');
+      expect(result.user).toEqual({
+        id: mockUser._id,
+        email: mockUser.email,
+        name: mockUser.name,
+        role: mockUser.role,
+      });
+    });
+
+    it('should throw UnauthorizedException for non-existent user', async () => {
+      const loginDto = {
+        email: 'nonexistent@example.com',
+        password: 'password123',
+      };
+
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw UnauthorizedException for invalid password', async () => {
+      const loginDto = {
+        email: 'test@example.com',
+        password: 'wrongpassword',
+      };
+
+      const hashedPassword = await bcrypt.hash('correctpassword', 10);
+      const mockUser = {
+        _id: 'user-id-123',
+        email: loginDto.email,
+        password: hashedPassword,
+        name: 'Test User',
+        role: 'user',
+      };
+
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(mockUser as any);
+
+      await expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
+
+  describe('Unit Tests - Token validation', () => {
+    it('should validate a valid token', async () => {
+      const mockToken = 'valid.jwt.token';
+      const mockPayload = {
+        email: 'test@example.com',
+        sub: 'user-id-123',
+        role: 'user',
+      };
+
+      jest.spyOn(jwtService, 'verify').mockReturnValue(mockPayload);
+
+      const result = await authService.validateToken(mockToken);
+
+      expect(result).toEqual(mockPayload);
+    });
+
+    it('should throw UnauthorizedException for invalid token', async () => {
+      const mockToken = 'invalid.jwt.token';
+
+      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+        throw new Error('Invalid token');
+      });
+
+      await expect(authService.validateToken(mockToken)).rejects.toThrow(
+        UnauthorizedException,
       );
     });
   });
