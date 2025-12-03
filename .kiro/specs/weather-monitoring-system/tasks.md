@@ -152,7 +152,7 @@
   - Test error handling
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 7. Implement Go Queue Worker
+- [x] 7. Implement Go Queue Worker
   - Initialize Go project with go.mod
   - Implement RabbitMQ consumer with amqp091-go
   - Implement message validation logic
@@ -162,27 +162,27 @@
   - Configure via environment variables
   - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6, 2.7_
 
-- [ ] 7.1 Write property test for message validation
+- [x] 7.1 Write property test for message validation
   - **Property 4: Queue worker validates message structure**
   - **Validates: Requirements 2.3**
 
-- [ ] 7.2 Write property test for API call triggering
+- [x] 7.2 Write property test for API call triggering
   - **Property 5: Valid messages trigger API calls**
   - **Validates: Requirements 2.4**
 
-- [ ] 7.3 Write property test for acknowledgment on success
+- [x] 7.3 Write property test for acknowledgment on success
   - **Property 6: Successful API responses trigger acknowledgment**
   - **Validates: Requirements 2.5**
 
-- [ ] 7.4 Write property test for nack on failure
+- [x] 7.4 Write property test for nack on failure
   - **Property 7: Failed API responses trigger negative acknowledgment**
   - **Validates: Requirements 2.6**
 
-- [ ] 7.5 Write property test for logging
+- [x] 7.5 Write property test for logging
   - **Property 8: Message processing generates logs**
   - **Validates: Requirements 2.7**
 
-- [ ] 7.6 Write unit tests for worker
+- [x] 7.6 Write unit tests for worker
   - Test message validation with valid/invalid messages
   - Test HTTP client with mocked responses
   - Test ack/nack logic
