@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WeatherService } from './weather.service';
 import { InsightsService } from './insights.service';
+import { ExportService } from './export.service';
 import { WeatherController } from './weather.controller';
 import { WeatherLog, WeatherLogSchema } from './schemas/weather-log.schema';
 
@@ -10,7 +11,7 @@ import { WeatherLog, WeatherLogSchema } from './schemas/weather-log.schema';
     MongooseModule.forFeature([{ name: WeatherLog.name, schema: WeatherLogSchema }]),
   ],
   controllers: [WeatherController],
-  providers: [WeatherService, InsightsService],
-  exports: [WeatherService, InsightsService],
+  providers: [WeatherService, InsightsService, ExportService],
+  exports: [WeatherService, InsightsService, ExportService],
 })
 export class WeatherModule {}

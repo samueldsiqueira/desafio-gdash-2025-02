@@ -101,7 +101,7 @@
   - Test alert generation for extreme values
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [-] 5. Implement data export functionality
+- [x] 5. Implement data export functionality
   - Install ExcelJS and csv-writer libraries
   - Create export service with CSV generation method
   - Create export service with XLSX generation method
@@ -110,15 +110,15 @@
   - Add proper headers for file downloads
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 5.1 Write property test for CSV export completeness
+- [x] 5.1 Write property test for CSV export completeness
   - **Property 18: CSV export contains all fields**
   - **Validates: Requirements 5.1, 5.3**
 
-- [ ] 5.2 Write property test for XLSX export completeness
+- [x] 5.2 Write property test for XLSX export completeness
   - **Property 19: XLSX export contains all fields**
   - **Validates: Requirements 5.2, 5.3**
 
-- [ ] 5.3 Write unit tests for export service
+- [x] 5.3 Write unit tests for export service
   - Test CSV generation with sample data
   - Test XLSX generation with sample data
   - Test file format validity

@@ -6,9 +6,13 @@ import {
   Query,
   Param,
   UseGuards,
+  Res,
+  Header,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { WeatherService } from './weather.service';
 import { InsightsService } from './insights.service';
+import { ExportService } from './export.service';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { QueryWeatherLogDto } from './dto/query-weather-log.dto';
 import { QueryInsightsDto } from './dto/query-insights.dto';
@@ -19,6 +23,7 @@ export class WeatherController {
   constructor(
     private readonly weatherService: WeatherService,
     private readonly insightsService: InsightsService,
+    private readonly exportService: ExportService,
   ) {}
 
   // POST endpoint to receive weather data from worker (internal, no auth required)
@@ -46,5 +51,37 @@ export class WeatherController {
   @UseGuards(JwtAuthGuard)
   getInsights(@Query() query: QueryInsightsDto) {
     return this.insightsService.getInsights(query);
+  }
+
+  // GET endpoint for CSV export (protected)
+  // Requirements: 5.1, 5.3
+  @Get('export/csv')
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'text/csv')
+  async exportCsv(
+    @Query() query: QueryWeatherLogDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const csv = await this.exportService.exportToCsv(query);
+    const filename = `weather-logs-${new Date().toISOString().split('T')[0]}.csv`;
+    
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
+  }
+
+  // GET endpoint for XLSX export (protected)
+  // Requirements: 5.2, 5.3
+  @Get('export/xlsx')
+  @UseGuards(JwtAuthGuard)
+  @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  async exportXlsx(
+    @Query() query: QueryWeatherLogDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const buffer = await this.exportService.exportToXlsx(query);
+    const filename = `weather-logs-${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(buffer);
   }
 }
