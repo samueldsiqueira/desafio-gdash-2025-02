@@ -124,7 +124,7 @@
   - Test file format validity
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 6. Implement Python Weather Collector
+- [-] 6. Implement Python Weather Collector
   - Initialize Python project with requirements.txt
   - Implement API client for Open-Meteo or OpenWeather
   - Implement data extraction and normalization logic
@@ -134,19 +134,19 @@
   - Configure via environment variables
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 6.1 Write property test for data extraction
+- [x] 6.1 Write property test for data extraction
   - **Property 1: Complete data extraction from API responses**
   - **Validates: Requirements 1.2**
 
-- [ ] 6.2 Write property test for JSON normalization
+- [x] 6.2 Write property test for JSON normalization
   - **Property 2: Valid JSON structure from normalization**
   - **Validates: Requirements 1.3**
 
-- [ ] 6.3 Write property test for message delivery
+- [x] 6.3 Write property test for message delivery
   - **Property 3: Message delivery to broker**
   - **Validates: Requirements 1.4**
 
-- [ ] 6.4 Write unit tests for collector
+- [x] 6.4 Write unit tests for collector
   - Test API client with mocked responses
   - Test data normalization
   - Test error handling

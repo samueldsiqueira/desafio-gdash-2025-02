@@ -18,6 +18,7 @@ __pycache__/
 *.so
 .Python
 venv/
+.venv/
 env/
 ENV/
 *.egg-info/
@@ -61,3 +62,13 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# Pytest
+.pytest_cache/
+.hypothesis/
+
+# MongoDB data (local dev)
+data/
+
+# RabbitMQ data
+rabbitmq_data/
