@@ -44,7 +44,7 @@
   - Test JWT token generation and validation
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 3. Implement weather data management in API
+- [x] 3. Implement weather data management in API
   - Create Weather Log schema with timestamp, location, weather data fields
   - Create weather module with service and controller
   - Implement POST endpoint to receive weather data from worker
@@ -52,19 +52,19 @@
   - Add indexes on timestamp and location fields
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 3.1 Write property test for weather data persistence
+- [x] 3.1 Write property test for weather data persistence
   - **Property 9: Weather data persistence**
   - **Validates: Requirements 3.1**
 
-- [ ] 3.2 Write property test for chronological ordering
+- [x] 3.2 Write property test for chronological ordering
   - **Property 10: Weather logs returned in chronological order**
   - **Validates: Requirements 3.3**
 
-- [ ] 3.3 Write property test for input validation
+- [x] 3.3 Write property test for input validation
   - **Property 24: Input validation rejects invalid data**
   - **Validates: Requirements 8.7**
 
-- [ ] 3.4 Write unit tests for weather service
+- [x] 3.4 Write unit tests for weather service
   - Test weather log creation
   - Test listing with filters and pagination
   - Test query ordering
