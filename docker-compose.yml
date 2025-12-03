@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: weather-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: weather-monitoring
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/weather-monitoring --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: weather-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - backend
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api-service
+      dockerfile: Dockerfile
+    container_name: weather-api
+    restart: unless-stopped
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongodb:27017/weather-monitoring}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-24h}
+      DEFAULT_USER_EMAIL: ${DEFAULT_USER_EMAIL:-admin@example.com}
+      DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-admin123}
+      API_PORT: ${API_PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build:
+      context: ./queue-worker
+      dockerfile: Dockerfile
+    container_name: weather-worker
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-weather-data}
+      API_SERVICE_URL: ${API_SERVICE_URL:-http://api:3000}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - backend
+
+  collector:
+    build:
+      context: ./weather-collector
+      dockerfile: Dockerfile
+    container_name: weather-collector
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: ${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-weather-data}
+      WEATHER_API_URL: ${WEATHER_API_URL:-https://api.open-meteo.com/v1/forecast}
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      COLLECTION_INTERVAL: ${COLLECTION_INTERVAL:-3600}
+      LOCATION_LAT: ${LOCATION_LAT:--23.5505}
+      LOCATION_LON: ${LOCATION_LON:--46.6333}
+      LOCATION_CITY: ${LOCATION_CITY:-São Paulo}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - backend
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: weather-dashboard
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    ports:
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - frontend
+
+networks:
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+  rabbitmq-data:
