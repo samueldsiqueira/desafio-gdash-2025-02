@@ -278,7 +278,7 @@
   - Test alerts display
   - _Requirements: 4.5_
 
-- [ ] 14. Implement optional external API integration (Optional)
+- [x] 14. Implement optional external API integration (Optional)
   - Add external API module to NestJS API
   - Implement service to consume PokéAPI or SWAPI
   - Create endpoints for listing items with pagination
@@ -288,17 +288,17 @@
   - Implement item detail view
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 14.1 Write property test for pagination
+- [x] 14.1 Write property test for pagination
   - **Property 25: Paginated results respect page boundaries**
   - **Validates: Requirements 9.2**
 
-- [ ] 14.2 Write unit tests for external API integration
+- [x] 14.2 Write unit tests for external API integration
   - Test API client with mocked responses
   - Test pagination logic
   - Test detail fetching
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 15. Add comprehensive error handling and logging
+- [x] 15. Add comprehensive error handling and logging
   - Implement error boundaries in React
   - Add toast notifications for all error scenarios
   - Implement structured logging in all services
@@ -306,17 +306,17 @@
   - Test error scenarios across all services
   - _Requirements: 8.5_
 
-- [ ] 15.1 Write property test for error logging
+- [x] 15.1 Write property test for error logging
   - **Property 23: Error logging completeness**
   - **Validates: Requirements 8.5**
 
-- [ ] 15.2 Write unit tests for error handling
+- [x] 15.2 Write unit tests for error handling
   - Test error boundaries
   - Test toast notifications
   - Test logging in each service
   - _Requirements: 8.5_
 
-- [ ] 16. Final integration and documentation
+- [x] 16. Final integration and documentation
   - Test complete end-to-end flow via Docker Compose
   - Verify all services start correctly
   - Test data flow from collector to dashboard

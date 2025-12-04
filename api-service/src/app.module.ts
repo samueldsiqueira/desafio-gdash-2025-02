@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UsersService } from './users/users.service';
 import { WeatherModule } from './weather/weather.module';
+import { ExternalApiModule } from './external-api/external-api.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WeatherModule } from './weather/weather.module';
     AuthModule,
     UsersModule,
     WeatherModule,
+    ExternalApiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

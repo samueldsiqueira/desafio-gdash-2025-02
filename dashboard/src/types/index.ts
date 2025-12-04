@@ -69,3 +69,48 @@ export interface PaginatedResponse<T> {
   limit: number
   totalPages: number
 }
+
+// External API types (PokéAPI)
+export interface PokemonListItem {
+  name: string
+  url: string
+  id: number
+}
+
+export interface PokemonType {
+  type: {
+    name: string
+  }
+}
+
+export interface PokemonStat {
+  base_stat: number
+  stat: {
+    name: string
+  }
+}
+
+export interface PokemonAbility {
+  ability: {
+    name: string
+  }
+  is_hidden: boolean
+}
+
+export interface PokemonDetail {
+  id: number
+  name: string
+  height: number
+  weight: number
+  types: PokemonType[]
+  sprites: {
+    front_default: string
+    other?: {
+      'official-artwork'?: {
+        front_default: string
+      }
+    }
+  }
+  stats: PokemonStat[]
+  abilities: PokemonAbility[]
+}

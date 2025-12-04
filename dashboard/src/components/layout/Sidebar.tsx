@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { LayoutDashboard, Users, Settings, CloudSun } from 'lucide-react'
+import { LayoutDashboard, Users, Settings, CloudSun, Compass } from 'lucide-react'
 
 const navItems = [
   {
@@ -12,6 +12,11 @@ const navItems = [
     title: 'Clima',
     href: '/weather',
     icon: CloudSun,
+  },
+  {
+    title: 'Explorar',
+    href: '/explore',
+    icon: Compass,
   },
   {
     title: 'Usuários',
