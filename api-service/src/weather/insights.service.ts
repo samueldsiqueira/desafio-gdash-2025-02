@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { WeatherLog, WeatherLogDocument } from './schemas/weather-log.schema';
 import { QueryInsightsDto } from './dto/query-insights.dto';
 
@@ -27,20 +29,35 @@ export interface AIInsights {
     start: Date;
     end: Date;
   };
+  locationName: string | null;
   statistics: InsightsStatistics;
   trends: InsightsTrends;
   classification: WeatherClassification;
   alerts: string[];
   comfortScore: number;
   summary: string;
+  aiAnalysis: string | null;
+  recommendations: string[];
   dataPoints: number;
 }
 
 @Injectable()
 export class InsightsService {
+  private readonly logger = new Logger(InsightsService.name);
+  private genAI: GoogleGenerativeAI | null = null;
+
   constructor(
     @InjectModel(WeatherLog.name) private weatherLogModel: Model<WeatherLogDocument>,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    if (apiKey) {
+      this.genAI = new GoogleGenerativeAI(apiKey);
+      this.logger.log('Gemini AI initialized successfully');
+    } else {
+      this.logger.warn('GEMINI_API_KEY not configured - AI insights will be disabled');
+    }
+  }
 
   async getInsights(query: QueryInsightsDto): Promise<AIInsights | null> {
     const filter = this.buildFilter(query);
@@ -63,16 +80,110 @@ export class InsightsService {
       end: new Date(Math.max(...timestamps)),
     };
 
+    // Determina o nome da localização
+    let locationName: string | null = null;
+    if (query.city && query.state) {
+      locationName = `${query.city}, ${query.state}`;
+    } else if (query.state) {
+      locationName = query.state;
+    } else if (logs.length > 0 && logs[0].location) {
+      const loc = logs[0].location;
+      locationName = loc.state ? `${loc.city}, ${loc.state}` : loc.city;
+    }
+
     return {
       period,
+      locationName,
       statistics,
       trends,
       classification,
       alerts,
       comfortScore,
       summary,
+      aiAnalysis: null,
+      recommendations: [],
       dataPoints: logs.length,
     };
+  }
+
+  async generateAIInsights(query: QueryInsightsDto): Promise<{ analysis: string | null; recommendations: string[] }> {
+    const filter = this.buildFilter(query);
+    const logs = await this.weatherLogModel.find(filter).sort({ timestamp: 1 }).exec();
+
+    if (logs.length === 0) {
+      return { analysis: null, recommendations: [] };
+    }
+
+    const statistics = this.calculateStatistics(logs);
+    const trends = this.calculateTrends(logs);
+
+    return this.generateAIAnalysis(logs, statistics, trends);
+  }
+
+  private async generateAIAnalysis(
+    logs: WeatherLog[],
+    statistics: InsightsStatistics,
+    trends: InsightsTrends,
+  ): Promise<{ analysis: string | null; recommendations: string[] }> {
+    if (!this.genAI) {
+      return { analysis: null, recommendations: [] };
+    }
+
+    try {
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const recentLogs = logs.slice(-10).map(log => ({
+        timestamp: log.timestamp,
+        city: log.location?.city,
+        temperature: log.weather.temperature,
+        humidity: log.weather.humidity,
+        windSpeed: log.weather.windSpeed,
+        rainProbability: log.weather.rainProbability,
+      }));
+
+      const prompt = `Você é um meteorologista especialista. Analise os seguintes dados climáticos e forneça insights úteis.
+
+DADOS ESTATÍSTICOS:
+- Temperatura média: ${statistics.avgTemperature}°C
+- Temperatura máxima: ${statistics.maxTemperature}°C
+- Temperatura mínima: ${statistics.minTemperature}°C
+- Umidade média: ${statistics.avgHumidity}%
+- Velocidade do vento média: ${statistics.avgWindSpeed} km/h
+- Probabilidade média de chuva: ${statistics.avgRainProbability}%
+
+TENDÊNCIAS:
+- Temperatura: ${trends.temperatureTrend}
+- Umidade: ${trends.humidityTrend}
+
+ÚLTIMAS LEITURAS:
+${JSON.stringify(recentLogs, null, 2)}
+
+Responda em JSON com este formato exato:
+{
+  "analysis": "Uma análise detalhada do clima em 2-3 frases",
+  "recommendations": ["recomendação 1", "recomendação 2", "recomendação 3"]
+}
+
+Forneça recomendações práticas para o dia-a-dia baseadas nos dados.`;
+
+      const result = await model.generateContent(prompt);
+      const response = result.response.text();
+      
+      // Extract JSON from response
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          analysis: parsed.analysis || null,
+          recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+        };
+      }
+
+      return { analysis: response, recommendations: [] };
+    } catch (error) {
+      this.logger.error('Failed to generate AI analysis', error);
+      return { analysis: null, recommendations: [] };
+    }
   }
 
   private buildFilter(query: QueryInsightsDto): Record<string, unknown> {
@@ -90,6 +201,10 @@ export class InsightsService {
 
     if (query.city) {
       filter['location.city'] = { $regex: query.city, $options: 'i' };
+    }
+
+    if (query.state) {
+      filter['location.state'] = { $regex: `^${query.state}$`, $options: 'i' };
     }
 
     return filter;
@@ -167,29 +282,29 @@ export class InsightsService {
 
     // Check for extreme heat
     if (statistics.maxTemperature >= 35) {
-      alerts.push('Extreme heat detected');
+      alerts.push('Calor extremo detectado');
     }
 
     // Check for extreme cold
     if (statistics.minTemperature <= 0) {
-      alerts.push('Freezing temperatures detected');
+      alerts.push('Temperaturas congelantes detectadas');
     }
 
     // Check for high rain probability
     const highRainLogs = logs.filter(log => log.weather.rainProbability >= 70);
     if (highRainLogs.length > 0) {
-      alerts.push('High chance of rain');
+      alerts.push('Alta chance de chuva');
     }
 
     // Check for strong winds
     const strongWindLogs = logs.filter(log => log.weather.windSpeed >= 50);
     if (strongWindLogs.length > 0) {
-      alerts.push('Strong winds expected');
+      alerts.push('Ventos fortes esperados');
     }
 
     // Check for very high humidity
     if (statistics.avgHumidity >= 85) {
-      alerts.push('Very high humidity');
+      alerts.push('Umidade muito alta');
     }
 
     return alerts;
@@ -227,27 +342,27 @@ export class InsightsService {
     alerts: string[],
   ): string {
     const classificationDescriptions: Record<WeatherClassification, string> = {
-      cold: 'cold',
-      cool: 'cool',
-      pleasant: 'pleasant',
-      warm: 'warm',
-      hot: 'hot',
+      cold: 'frio',
+      cool: 'fresco',
+      pleasant: 'agradável',
+      warm: 'quente',
+      hot: 'muito quente',
     };
 
     const trendDescriptions: Record<TemperatureTrend, string> = {
-      rising: 'increasing',
-      falling: 'decreasing',
-      stable: 'stable',
+      rising: 'em elevação',
+      falling: 'em queda',
+      stable: 'estável',
     };
 
-    let summary = `Weather conditions are ${classificationDescriptions[classification]} `;
-    summary += `with an average temperature of ${statistics.avgTemperature}°C. `;
-    summary += `Temperature trend is ${trendDescriptions[trends.temperatureTrend]}. `;
-    summary += `Average humidity is ${statistics.avgHumidity}% `;
-    summary += `with wind speeds averaging ${statistics.avgWindSpeed} km/h.`;
+    let summary = `O clima está ${classificationDescriptions[classification]} `;
+    summary += `com temperatura média de ${statistics.avgTemperature}°C. `;
+    summary += `A tendência de temperatura está ${trendDescriptions[trends.temperatureTrend]}. `;
+    summary += `A umidade média é de ${statistics.avgHumidity}% `;
+    summary += `com ventos de ${statistics.avgWindSpeed} km/h em média.`;
 
     if (alerts.length > 0) {
-      summary += ` Alerts: ${alerts.join(', ')}.`;
+      summary += ` Alertas: ${alerts.join(', ')}.`;
     }
 
     return summary;

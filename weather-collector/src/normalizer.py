@@ -11,6 +11,7 @@ def normalize_weather_data(
     latitude: float,
     longitude: float,
     source: str = "open-meteo",
+    state: str | None = None,
 ) -> dict[str, Any]:
     """Normalize weather data into standard JSON structure.
 
@@ -20,6 +21,7 @@ def normalize_weather_data(
         latitude: Location latitude
         longitude: Location longitude
         source: Data source identifier
+        state: State code for the location (optional)
 
     Returns:
         Normalized weather data dictionary
@@ -63,13 +65,17 @@ def normalize_weather_data(
         raise ValueError(f"Invalid rain_probability value: {rain_probability}")
 
     # Build normalized structure (using camelCase for API compatibility)
+    location_data: dict[str, Any] = {
+        "city": city,
+        "latitude": float(latitude),
+        "longitude": float(longitude),
+    }
+    if state:
+        location_data["state"] = state
+
     normalized = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "location": {
-            "city": city,
-            "latitude": float(latitude),
-            "longitude": float(longitude),
-        },
+        "location": location_data,
         "weather": {
             "temperature": float(temperature),
             "humidity": int(humidity),

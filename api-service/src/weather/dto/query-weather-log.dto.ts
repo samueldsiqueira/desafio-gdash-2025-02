@@ -18,6 +18,11 @@ export class QueryWeatherLogDto {
   @IsString()
   city?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by state code', example: 'SP' })
+  @IsOptional()
+  @IsString()
+  state?: string;
+
   @ApiPropertyOptional({ description: 'Page number', example: 1, minimum: 1, default: 1 })
   @IsOptional()
   @Type(() => Number)

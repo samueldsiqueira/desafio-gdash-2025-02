@@ -45,51 +45,114 @@ function SimpleLineChart({ data, dataKey, color, label }: {
   const max = Math.max(...values)
   const range = max - min || 1
 
-  const width = 100
-  const height = 200
-  const padding = 40
+  const svgWidth = 400
+  const svgHeight = 160
+  const paddingLeft = 35
+  const paddingRight = 10
+  const paddingTop = 10
+  const paddingBottom = 25
+  const chartWidth = svgWidth - paddingLeft - paddingRight
+  const chartHeight = svgHeight - paddingTop - paddingBottom
 
   const points = data.map((d, i) => {
-    const x = padding + (i / (data.length - 1 || 1)) * (width - 2 * padding)
-    const y = height - padding - ((d[dataKey] - min) / range) * (height - 2 * padding)
-    return `${x}%,${y}`
+    const x = paddingLeft + (i / (data.length - 1 || 1)) * chartWidth
+    const y = paddingTop + chartHeight - ((d[dataKey] - min) / range) * chartHeight
+    return { x, y }
   })
 
+  const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ')
+
+  // Gerar labels do eixo Y
+  const yLabels = [min, min + range / 2, max]
+
   return (
-    <div className="relative h-[200px]" data-testid={`chart-${dataKey}`}>
-      <svg viewBox={`0 0 100 ${height}`} className="w-full h-full" preserveAspectRatio="none">
+    <div className="h-[200px]" data-testid={`chart-${dataKey}`}>
+      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-full">
+        {/* Grid lines horizontais */}
+        {yLabels.map((val, i) => {
+          const y = paddingTop + chartHeight - ((val - min) / range) * chartHeight
+          return (
+            <g key={i}>
+              <line
+                x1={paddingLeft}
+                y1={y}
+                x2={svgWidth - paddingRight}
+                y2={y}
+                stroke="currentColor"
+                strokeOpacity="0.1"
+                strokeDasharray="4"
+              />
+              <text
+                x={paddingLeft - 5}
+                y={y + 4}
+                textAnchor="end"
+                className="fill-muted-foreground"
+                fontSize="10"
+              >
+                {val.toFixed(0)}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Linha do gráfico */}
         <polyline
           fill="none"
           stroke={color}
           strokeWidth="2"
-          points={points.join(' ')}
-          vectorEffect="non-scaling-stroke"
+          points={polylinePoints}
+          strokeLinejoin="round"
+          strokeLinecap="round"
         />
-        {data.map((d, i) => {
-          const x = padding + (i / (data.length - 1 || 1)) * (width - 2 * padding)
-          const y = height - padding - ((d[dataKey] - min) / range) * (height - 2 * padding)
-          return (
-            <circle
-              key={i}
-              cx={`${x}%`}
-              cy={y}
-              r="3"
-              fill={color}
-              vectorEffect="non-scaling-stroke"
-            />
-          )
-        })}
+
+        {/* Pontos */}
+        {points.map((p, i) => (
+          <circle
+            key={i}
+            cx={p.x}
+            cy={p.y}
+            r="4"
+            fill={color}
+            stroke="white"
+            strokeWidth="1"
+          />
+        ))}
+
+        {/* Labels do eixo X */}
+        {data.length > 0 && (
+          <text
+            x={paddingLeft}
+            y={svgHeight - 5}
+            textAnchor="start"
+            className="fill-muted-foreground"
+            fontSize="10"
+          >
+            {data[0].time}
+          </text>
+        )}
+        {data.length > 1 && (
+          <text
+            x={svgWidth - paddingRight}
+            y={svgHeight - 5}
+            textAnchor="end"
+            className="fill-muted-foreground"
+            fontSize="10"
+          >
+            {data[data.length - 1].time}
+          </text>
+        )}
+
+        {/* Label da unidade */}
+        <text
+          x={paddingLeft - 5}
+          y={paddingTop - 2}
+          textAnchor="end"
+          className="fill-muted-foreground"
+          fontSize="9"
+        >
+          {label}
+        </text>
       </svg>
-      <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-muted-foreground px-2">
-        {data.length > 0 && <span>{data[0].time}</span>}
-        {data.length > 1 && <span>{data[data.length - 1].time}</span>}
-      </div>
-      <div className="absolute top-0 left-0 text-xs text-muted-foreground">
-        {label}: {max.toFixed(1)}
-      </div>
-      <div className="absolute bottom-6 left-0 text-xs text-muted-foreground">
-        {min.toFixed(1)}
-      </div>
     </div>
   )
 }

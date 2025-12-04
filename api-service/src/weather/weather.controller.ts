@@ -14,9 +14,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery }
 import { WeatherService } from './weather.service';
 import { InsightsService } from './insights.service';
 import { ExportService } from './export.service';
+import { RealtimeService } from './realtime.service';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { QueryWeatherLogDto } from './dto/query-weather-log.dto';
 import { QueryInsightsDto } from './dto/query-insights.dto';
+import { FetchRealtimeDto } from './dto/fetch-realtime.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Weather')
@@ -26,6 +28,7 @@ export class WeatherController {
     private readonly weatherService: WeatherService,
     private readonly insightsService: InsightsService,
     private readonly exportService: ExportService,
+    private readonly realtimeService: RealtimeService,
   ) {}
 
   // POST endpoint to receive weather data from worker (internal, no auth required)
@@ -38,6 +41,23 @@ export class WeatherController {
   @ApiResponse({ status: 400, description: 'Invalid input data' })
   create(@Body() createWeatherLogDto: CreateWeatherLogDto) {
     return this.weatherService.create(createWeatherLogDto);
+  }
+
+  // POST endpoint to fetch realtime weather for a city (protected)
+  @Post('fetch')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ 
+    summary: 'Fetch realtime weather', 
+    description: 'Fetch current weather data for a specific city and state from Open-Meteo API and save to database' 
+  })
+  @ApiResponse({ status: 201, description: 'Weather data fetched and saved successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'City not found' })
+  @ApiResponse({ status: 502, description: 'External API error' })
+  fetchRealtime(@Body() fetchRealtimeDto: FetchRealtimeDto) {
+    return this.realtimeService.fetchWeatherByCity(fetchRealtimeDto.city, fetchRealtimeDto.state);
   }
 
   // GET endpoint to list weather logs with pagination and filters (protected)
@@ -101,6 +121,7 @@ export class WeatherController {
             end: { type: 'string', format: 'date-time' },
           },
         },
+        locationName: { type: 'string', nullable: true },
         statistics: {
           type: 'object',
           properties: {
@@ -128,6 +149,30 @@ export class WeatherController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getInsights(@Query() query: QueryInsightsDto) {
     return this.insightsService.getInsights(query);
+  }
+
+  // POST endpoint to generate AI analysis on demand (protected)
+  @Post('insights/ai')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({ 
+    summary: 'Generate AI analysis', 
+    description: 'Generate AI-powered analysis and recommendations using Gemini' 
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'AI analysis generated successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        analysis: { type: 'string', nullable: true },
+        recommendations: { type: 'array', items: { type: 'string' } },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  generateAIInsights(@Body() query: QueryInsightsDto) {
+    return this.insightsService.generateAIInsights(query);
   }
 
   // GET endpoint for CSV export (protected)

@@ -8,6 +8,9 @@ export class Location {
   @Prop({ required: true })
   city: string;
 
+  @Prop()
+  state?: string;
+
   @Prop({ required: true })
   latitude: number;
 
@@ -53,3 +56,4 @@ export const WeatherLogSchema = SchemaFactory.createForClass(WeatherLog);
 // Add indexes for performance
 WeatherLogSchema.index({ timestamp: -1 });
 WeatherLogSchema.index({ 'location.city': 1 });
+WeatherLogSchema.index({ 'location.state': 1 });

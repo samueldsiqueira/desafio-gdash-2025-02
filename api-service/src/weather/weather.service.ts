@@ -28,7 +28,7 @@ export class WeatherService {
   }
 
   async findAll(query: QueryWeatherLogDto): Promise<PaginatedResult<WeatherLog>> {
-    const { startDate, endDate, city, page = 1, limit = 10 } = query;
+    const { startDate, endDate, city, state, page = 1, limit = 10 } = query;
     
     const filter: Record<string, unknown> = {};
     
@@ -44,6 +44,10 @@ export class WeatherService {
     
     if (city) {
       filter['location.city'] = { $regex: city, $options: 'i' };
+    }
+
+    if (state) {
+      filter['location.state'] = { $regex: `^${state}$`, $options: 'i' };
     }
 
     const skip = (page - 1) * limit;

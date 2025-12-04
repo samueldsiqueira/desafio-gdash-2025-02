@@ -19,6 +19,7 @@ export interface AuthResponse {
 
 export interface Location {
   city: string
+  state?: string
   latitude: number
   longitude: number
 }
@@ -45,6 +46,7 @@ export interface WeatherInsights {
     start: string
     end: string
   }
+  locationName: string | null
   statistics: {
     avgTemperature: number
     avgHumidity: number
@@ -60,6 +62,13 @@ export interface WeatherInsights {
   alerts: string[]
   comfortScore: number
   summary: string
+  aiAnalysis: string | null
+  recommendations: string[]
+}
+
+export interface AIAnalysisResponse {
+  analysis: string | null
+  recommendations: string[]
 }
 
 export interface PaginatedResponse<T> {

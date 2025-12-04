@@ -67,6 +67,45 @@ class TestNormalizeWeatherData:
 
         assert result["source"] == "openweather"
 
+    def test_normalize_with_state(self):
+        """Test normalization with state code."""
+        weather_data = {
+            "temperature": 25.5,
+            "humidity": 60,
+            "wind_speed": 15.0,
+            "condition": "partly_cloudy",
+            "rain_probability": 30,
+        }
+
+        result = normalize_weather_data(
+            weather_data=weather_data,
+            city="São Paulo",
+            latitude=-23.5505,
+            longitude=-46.6333,
+            state="SP",
+        )
+
+        assert result["location"]["state"] == "SP"
+
+    def test_normalize_without_state(self):
+        """Test normalization without state code (optional)."""
+        weather_data = {
+            "temperature": 25.5,
+            "humidity": 60,
+            "wind_speed": 15.0,
+            "condition": "partly_cloudy",
+            "rain_probability": 30,
+        }
+
+        result = normalize_weather_data(
+            weather_data=weather_data,
+            city="São Paulo",
+            latitude=-23.5505,
+            longitude=-46.6333,
+        )
+
+        assert "state" not in result["location"]
+
     def test_normalize_missing_temperature(self):
         """Test error when temperature is missing."""
         weather_data = {

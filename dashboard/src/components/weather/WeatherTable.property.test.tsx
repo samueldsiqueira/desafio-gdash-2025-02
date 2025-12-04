@@ -38,17 +38,21 @@ const weatherDataArb = fc.record({
   rainProbability: fc.integer({ min: 0, max: 100 }),
 })
 
-// Generator for valid dates (constrained to avoid invalid date issues)
-const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
+// Generator for valid ISO date strings (using integer timestamps to avoid invalid date issues)
+const minTimestamp = new Date('2020-01-01').getTime()
+const maxTimestamp = new Date('2030-12-31').getTime()
+const validISODateArb = fc
+  .integer({ min: minTimestamp, max: maxTimestamp })
+  .map((ts) => new Date(ts).toISOString())
 
 // Generator for valid WeatherLog
 const weatherLogArb: fc.Arbitrary<WeatherLog> = fc.record({
   _id: fc.uuid(),
-  timestamp: validDateArb.map((d) => d.toISOString()),
+  timestamp: validISODateArb,
   location: locationArb,
   weather: weatherDataArb,
   source: fc.constantFrom('open-meteo', 'openweather'),
-  createdAt: validDateArb.map((d) => d.toISOString()),
+  createdAt: validISODateArb,
 })
 
 // Generator for a non-empty array of weather logs (1-5 items for performance)

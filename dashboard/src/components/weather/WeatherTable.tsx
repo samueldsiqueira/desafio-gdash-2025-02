@@ -30,14 +30,43 @@ function formatDate(dateString: string): string {
   })
 }
 
-const conditionLabels: Record<string, string> = {
-  sunny: 'Ensolarado',
-  clear: 'Limpo',
-  cloudy: 'Nublado',
-  partly_cloudy: 'Parc. Nublado',
-  rainy: 'Chuvoso',
-  rain: 'Chuva',
-  snow: 'Neve',
+function getConditionLabel(condition: string): string {
+  switch (condition) {
+    case 'sunny': return 'Ensolarado'
+    case 'clear': return 'Céu Limpo'
+    case 'mainly_clear': return 'Limpo'
+    case 'cloudy': return 'Nublado'
+    case 'partly_cloudy': return 'Parc. Nublado'
+    case 'overcast': return 'Encoberto'
+    case 'fog': return 'Neblina'
+    case 'depositing_rime_fog': return 'Neblina/Geada'
+    case 'rainy': return 'Chuvoso'
+    case 'rain': return 'Chuva'
+    case 'light_drizzle': return 'Garoa Leve'
+    case 'moderate_drizzle': return 'Garoa'
+    case 'dense_drizzle': return 'Garoa Forte'
+    case 'slight_rain': return 'Chuva Leve'
+    case 'moderate_rain': return 'Chuva'
+    case 'heavy_rain': return 'Chuva Forte'
+    case 'slight_rain_showers': return 'Pancadas'
+    case 'moderate_rain_showers': return 'Pancadas'
+    case 'violent_rain_showers': return 'Temporal'
+    case 'snow': return 'Neve'
+    case 'slight_snow': return 'Neve Leve'
+    case 'moderate_snow': return 'Neve'
+    case 'heavy_snow': return 'Neve Forte'
+    case 'thunderstorm': return 'Tempestade'
+    case 'thunderstorm_with_hail': return 'Granizo'
+    case 'thunderstorm_with_heavy_hail': return 'Granizo Forte'
+    default: return condition
+  }
+}
+
+function formatLocation(location: { city: string; state?: string }): string {
+  if (location.state) {
+    return `${location.state}, ${location.city}`
+  }
+  return location.city
 }
 
 export function WeatherTable({ logs, page, totalPages, isLoading, onPageChange }: WeatherTableProps) {
@@ -77,10 +106,8 @@ export function WeatherTable({ logs, page, totalPages, isLoading, onPageChange }
               logs.map((log) => (
                 <TableRow key={log._id} data-testid="weather-table-row">
                   <TableCell data-testid="row-datetime">{formatDate(log.timestamp)}</TableCell>
-                  <TableCell data-testid="row-location">{log.location.city}</TableCell>
-                  <TableCell data-testid="row-condition">
-                    {conditionLabels[log.weather.condition] || log.weather.condition}
-                  </TableCell>
+                  <TableCell data-testid="row-location">{formatLocation(log.location)}</TableCell>
+                  <TableCell data-testid="row-condition">{getConditionLabel(log.weather.condition)}</TableCell>
                   <TableCell className="text-right" data-testid="row-temperature">
                     {log.weather.temperature.toFixed(1)}°C
                   </TableCell>

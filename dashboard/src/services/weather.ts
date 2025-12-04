@@ -1,5 +1,5 @@
 import api from './api'
-import { WeatherLog, WeatherInsights, PaginatedResponse } from '@/types'
+import { WeatherLog, WeatherInsights, PaginatedResponse, AIAnalysisResponse } from '@/types'
 
 export interface WeatherLogsQuery {
   page?: number
@@ -7,14 +7,27 @@ export interface WeatherLogsQuery {
   startDate?: string
   endDate?: string
   city?: string
+  state?: string
 }
 
 export interface InsightsQuery {
   startDate?: string
   endDate?: string
+  city?: string
+  state?: string
+}
+
+export interface FetchRealtimeRequest {
+  city: string
+  state: string
 }
 
 export const weatherService = {
+  async fetchRealtime(request: FetchRealtimeRequest): Promise<WeatherLog> {
+    const response = await api.post<WeatherLog>('/weather/fetch', request)
+    return response.data
+  },
+
   async getLogs(query: WeatherLogsQuery = {}): Promise<PaginatedResponse<WeatherLog>> {
     const params = new URLSearchParams()
     if (query.page) params.append('page', query.page.toString())
@@ -22,6 +35,7 @@ export const weatherService = {
     if (query.startDate) params.append('startDate', query.startDate)
     if (query.endDate) params.append('endDate', query.endDate)
     if (query.city) params.append('city', query.city)
+    if (query.state) params.append('state', query.state)
 
     const response = await api.get<PaginatedResponse<WeatherLog>>(`/weather/logs?${params.toString()}`)
     return response.data
@@ -31,8 +45,15 @@ export const weatherService = {
     const params = new URLSearchParams()
     if (query.startDate) params.append('startDate', query.startDate)
     if (query.endDate) params.append('endDate', query.endDate)
+    if (query.city) params.append('city', query.city)
+    if (query.state) params.append('state', query.state)
 
     const response = await api.get<WeatherInsights>(`/weather/insights?${params.toString()}`)
+    return response.data
+  },
+
+  async generateAIAnalysis(query: InsightsQuery = {}): Promise<AIAnalysisResponse> {
+    const response = await api.post<AIAnalysisResponse>('/weather/insights/ai', query)
     return response.data
   },
 

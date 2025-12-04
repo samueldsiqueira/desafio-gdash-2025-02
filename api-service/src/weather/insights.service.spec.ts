@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import * as fc from 'fast-check';
 import { InsightsService, WeatherClassification } from './insights.service';
@@ -12,6 +13,11 @@ describe('InsightsService', () => {
     return mockModel;
   };
 
+  // Helper to create a mock ConfigService
+  const createMockConfigService = () => ({
+    get: jest.fn().mockReturnValue(undefined), // No Gemini API key by default
+  });
+
   const createTestModule = async (mockModel: any) => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -19,6 +25,10 @@ describe('InsightsService', () => {
         {
           provide: getModelToken(WeatherLog.name),
           useValue: mockModel,
+        },
+        {
+          provide: ConfigService,
+          useValue: createMockConfigService(),
         },
       ],
     }).compile();
@@ -180,11 +190,13 @@ describe('InsightsService', () => {
    */
   describe('Property 15: Weather classification assignment', () => {
     it('should assign correct classification based on average temperature', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.double({ min: -50, max: 60, noNaN: true }),
           (avgTemperature) => {
-            const service = new InsightsService(null as any);
             const classification = service.classifyWeather(avgTemperature);
 
             // Verify classification is valid
@@ -209,8 +221,9 @@ describe('InsightsService', () => {
     });
 
     // Test boundary conditions
-    it('should handle classification boundary values correctly', () => {
-      const service = new InsightsService(null as any);
+    it('should handle classification boundary values correctly', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
 
       // Test exact boundaries
       expect(service.classifyWeather(9.99)).toBe('cold');
@@ -233,11 +246,13 @@ describe('InsightsService', () => {
    */
   describe('Property 16: Extreme conditions generate alerts', () => {
     it('should generate extreme heat alert when max temperature >= 35°C', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.double({ min: 35, max: 60, noNaN: true }),
           (extremeTemp) => {
-            const service = new InsightsService(null as any);
             const logs = [{
               weather: {
                 temperature: extremeTemp,
@@ -258,11 +273,13 @@ describe('InsightsService', () => {
     });
 
     it('should generate freezing alert when min temperature <= 0°C', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.double({ min: -50, max: 0, noNaN: true }),
           (freezingTemp) => {
-            const service = new InsightsService(null as any);
             const logs = [{
               weather: {
                 temperature: freezingTemp,
@@ -283,11 +300,13 @@ describe('InsightsService', () => {
     });
 
     it('should generate high rain alert when rain probability >= 70%', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.integer({ min: 70, max: 100 }),
           (highRainProb) => {
-            const service = new InsightsService(null as any);
             const logs = [{
               weather: {
                 temperature: 20,
@@ -308,11 +327,13 @@ describe('InsightsService', () => {
     });
 
     it('should generate strong wind alert when wind speed >= 50 km/h', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.double({ min: 50, max: 200, noNaN: true }),
           (strongWind) => {
-            const service = new InsightsService(null as any);
             const logs = [{
               weather: {
                 temperature: 20,
@@ -333,6 +354,9 @@ describe('InsightsService', () => {
     });
 
     it('should not generate alerts for normal conditions', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
       await fc.assert(
         fc.property(
           fc.record({
@@ -342,7 +366,6 @@ describe('InsightsService', () => {
             rainProbability: fc.integer({ min: 0, max: 60 }),
           }),
           (normalWeather) => {
-            const service = new InsightsService(null as any);
             const logs = [{
               weather: normalWeather,
             }] as any;

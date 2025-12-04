@@ -14,7 +14,7 @@ const navItems = [
     icon: CloudSun,
   },
   {
-    title: 'Explorar',
+    title: 'Pokepaginação',
     href: '/explore',
     icon: Compass,
   },

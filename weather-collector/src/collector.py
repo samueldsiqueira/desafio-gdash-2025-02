@@ -60,6 +60,7 @@ class WeatherCollector:
                 city=config.location_city,
                 latitude=config.location_lat,
                 longitude=config.location_lon,
+                state=config.location_state,
             )
 
             # Convert to JSON

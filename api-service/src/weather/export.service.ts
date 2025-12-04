@@ -9,6 +9,7 @@ import { createObjectCsvStringifier } from 'csv-writer';
 export interface ExportData {
   timestamp: string;
   city: string;
+  state: string;
   latitude: number;
   longitude: number;
   temperature: number;
@@ -29,7 +30,7 @@ export class ExportService {
    * Fetches weather logs based on query filters for export
    */
   async getLogsForExport(query: QueryWeatherLogDto): Promise<WeatherLog[]> {
-    const { startDate, endDate, city } = query;
+    const { startDate, endDate, city, state } = query;
     
     const filter: Record<string, unknown> = {};
     
@@ -47,6 +48,10 @@ export class ExportService {
       filter['location.city'] = { $regex: city, $options: 'i' };
     }
 
+    if (state) {
+      filter['location.state'] = { $regex: `^${state}$`, $options: 'i' };
+    }
+
     return this.weatherLogModel
       .find(filter)
       .sort({ timestamp: -1 })
@@ -62,6 +67,7 @@ export class ExportService {
         ? log.timestamp.toISOString() 
         : new Date(log.timestamp).toISOString(),
       city: log.location.city,
+      state: log.location.state || '',
       latitude: log.location.latitude,
       longitude: log.location.longitude,
       temperature: log.weather.temperature,
@@ -86,6 +92,7 @@ export class ExportService {
       header: [
         { id: 'timestamp', title: 'Timestamp' },
         { id: 'city', title: 'City' },
+        { id: 'state', title: 'State' },
         { id: 'latitude', title: 'Latitude' },
         { id: 'longitude', title: 'Longitude' },
         { id: 'temperature', title: 'Temperature (°C)' },
@@ -121,6 +128,7 @@ export class ExportService {
     worksheet.columns = [
       { header: 'Timestamp', key: 'timestamp', width: 25 },
       { header: 'City', key: 'city', width: 20 },
+      { header: 'State', key: 'state', width: 10 },
       { header: 'Latitude', key: 'latitude', width: 12 },
       { header: 'Longitude', key: 'longitude', width: 12 },
       { header: 'Temperature (°C)', key: 'temperature', width: 18 },

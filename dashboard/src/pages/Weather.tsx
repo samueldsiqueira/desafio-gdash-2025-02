@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, CloudRain } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { WeatherCards, WeatherTable, WeatherCharts, ExportButtons, InsightsPanel, LocationFilter } from '@/components/weather'
-import { useWeatherLogs, useWeatherInsights, useAutoRefresh, useAutoRefreshInterval } from '@/hooks/useWeather'
+import { WeatherTable, WeatherCharts, ExportButtons, LocationFilter } from '@/components/weather'
+import { useWeatherLogs, useAutoRefresh, useAutoRefreshInterval } from '@/hooks/useWeather'
 import { useLocationFilter } from '@/hooks/useLocationFilter'
 
-export function Dashboard() {
+export function Weather() {
   const {
     states,
     cities,
@@ -23,15 +23,11 @@ export function Dashboard() {
     city: selectedCity,
   }), [selectedState, selectedCity])
 
-  const { logs, page, totalPages, isLoading, error, setPage, refresh } = useWeatherLogs(10, locationFilter)
-  const { insights, isLoading: insightsLoading, error: insightsError, refresh: refreshInsights } = useWeatherInsights(locationFilter)
-
-  const latestLog = logs.length > 0 ? logs[0] : null
+  const { logs, page, totalPages, isLoading, error, setPage, refresh } = useWeatherLogs(15, locationFilter)
 
   const handleRefresh = useCallback(() => {
     refresh()
-    refreshInsights()
-  }, [refresh, refreshInsights])
+  }, [refresh])
 
   // Auto-refresh using persisted interval from Settings
   const autoRefreshIntervalMs = useAutoRefreshInterval()
@@ -40,11 +36,14 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Visão geral das condições climáticas
-          </p>
+        <div className="flex items-center gap-3">
+          <CloudRain className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Clima</h1>
+            <p className="text-muted-foreground">
+              Dados climáticos detalhados e histórico completo
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <ExportButtons disabled={logs.length === 0} />
@@ -67,12 +66,6 @@ export function Dashboard() {
         </div>
       )}
 
-      {insightsError && (
-        <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md" data-testid="insights-error-message">
-          {insightsError}
-        </div>
-      )}
-
       {locationError && (
         <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md" data-testid="location-error-message">
           {locationError}
@@ -88,16 +81,7 @@ export function Dashboard() {
         cities={cities}
         isLoadingStates={isLoadingStates}
         isLoadingCities={isLoadingCities}
-        onCollectionSuccess={handleRefresh}
-      />
-
-      <WeatherCards weatherLog={latestLog} isLoading={isLoading} />
-
-      <InsightsPanel 
-        insights={insights} 
-        isLoading={insightsLoading} 
-        selectedState={selectedState}
-        selectedCity={selectedCity}
+        onCollectionSuccess={refresh}
       />
 
       <WeatherCharts logs={logs} isLoading={isLoading} />

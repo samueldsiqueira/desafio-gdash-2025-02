@@ -21,6 +21,7 @@ class Config:
     location_lat: float = float(os.getenv("LOCATION_LAT", "-23.5505"))
     location_lon: float = float(os.getenv("LOCATION_LON", "-46.6333"))
     location_city: str = os.getenv("LOCATION_CITY", "São Paulo")
+    location_state: str = os.getenv("LOCATION_STATE", "SP")
 
     # Collection
     collection_interval: int = int(os.getenv("COLLECTION_INTERVAL", "3600"))

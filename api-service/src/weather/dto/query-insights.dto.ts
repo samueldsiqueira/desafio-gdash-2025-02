@@ -17,4 +17,9 @@ export class QueryInsightsDto {
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   city?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by state code', example: 'SP' })
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  state?: string;
 }

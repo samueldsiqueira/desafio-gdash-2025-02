@@ -9,6 +9,7 @@ import (
 // Location represents the location data in a weather message
 type Location struct {
 	City      string  `json:"city"`
+	State     string  `json:"state,omitempty"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
 }

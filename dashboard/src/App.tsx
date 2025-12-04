@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext'
 import { Layout } from '@/components/layout/Layout'
 import { Login } from '@/pages/Login'
 import { Dashboard } from '@/pages/Dashboard'
+import { Weather } from '@/pages/Weather'
+import { Settings } from '@/pages/Settings'
 import { Users } from '@/pages/Users'
 import { Explore } from '@/pages/Explore'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
@@ -20,10 +22,10 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="weather" element={<Dashboard />} />
+              <Route path="weather" element={<Weather />} />
               <Route path="users" element={<Users />} />
               <Route path="explore" element={<Explore />} />
-              <Route path="settings" element={<Dashboard />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

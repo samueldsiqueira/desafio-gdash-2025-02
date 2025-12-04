@@ -406,6 +406,39 @@ describe('WeatherService', () => {
       );
     });
 
+    it('should filter by state', async () => {
+      const mockModel = createMockModel();
+      const service = await createTestModule(mockModel);
+
+      mockModel.find = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnValue({
+            limit: jest.fn().mockReturnValue({
+              exec: jest.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      });
+      mockModel.countDocuments = jest.fn().mockReturnValue({
+        exec: jest.fn().mockResolvedValue(0),
+      });
+
+      await service.findAll({
+        state: 'SP',
+        page: 1,
+        limit: 10,
+      });
+
+      expect(mockModel.find).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'location.state': expect.objectContaining({
+            $regex: '^SP$',
+            $options: 'i',
+          }),
+        })
+      );
+    });
+
     it('should calculate correct pagination metadata', async () => {
       const mockModel = createMockModel();
       const service = await createTestModule(mockModel);

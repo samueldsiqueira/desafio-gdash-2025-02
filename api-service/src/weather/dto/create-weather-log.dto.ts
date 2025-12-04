@@ -6,15 +6,21 @@ import {
   ValidateNested,
   Min,
   Max,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LocationDto {
   @ApiProperty({ description: 'City name', example: 'São Paulo' })
   @IsString()
   @IsNotEmpty()
   city: string;
+
+  @ApiPropertyOptional({ description: 'State code', example: 'SP' })
+  @IsString()
+  @IsOptional()
+  state?: string;
 
   @ApiProperty({ description: 'Latitude coordinate', example: -23.5505, minimum: -90, maximum: 90 })
   @IsNumber()
