@@ -57,10 +57,12 @@ export class AuthService {
     }
 
     return {
-      id: user._id,
+      _id: user._id,
       email: user.email,
       name: user.name,
       role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
   }
 }
