@@ -28,11 +28,11 @@ func TestProperty4_ValidMessagesAreAccepted(t *testing.T) {
 					"longitude": lon,
 				},
 				"weather": map[string]interface{}{
-					"temperature":      temp,
-					"humidity":         humidity,
-					"wind_speed":       windSpeed,
-					"condition":        condition,
-					"rain_probability": rainProb,
+					"temperature":     temp,
+					"humidity":        humidity,
+					"windSpeed":       windSpeed,
+					"condition":       condition,
+					"rainProbability": rainProb,
 				},
 				"source": source,
 			}
@@ -117,7 +117,7 @@ func TestProperty4_InvalidMessagesAreRejected(t *testing.T) {
 	properties.Property("invalid rain probability is rejected", prop.ForAll(
 		func(rainProb float64) bool {
 			msg := createBaseMessage()
-			msg["weather"].(map[string]interface{})["rain_probability"] = rainProb
+			msg["weather"].(map[string]interface{})["rainProbability"] = rainProb
 
 			data, _ := json.Marshal(msg)
 			_, err := ValidateMessage(data)
@@ -141,11 +141,11 @@ func createBaseMessage() map[string]interface{} {
 			"longitude": -46.6333,
 		},
 		"weather": map[string]interface{}{
-			"temperature":      28.5,
-			"humidity":         65.0,
-			"wind_speed":       12.3,
-			"condition":        "partly_cloudy",
-			"rain_probability": 30.0,
+			"temperature":     28.5,
+			"humidity":        65.0,
+			"windSpeed":       12.3,
+			"condition":       "partly_cloudy",
+			"rainProbability": 30.0,
 		},
 		"source": "open-meteo",
 	}

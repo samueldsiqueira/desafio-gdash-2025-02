@@ -128,9 +128,9 @@ class TestJSONNormalizationProperty:
         weather = normalized["weather"]
         assert "temperature" in weather
         assert "humidity" in weather
-        assert "wind_speed" in weather
+        assert "windSpeed" in weather
         assert "condition" in weather
-        assert "rain_probability" in weather
+        assert "rainProbability" in weather
 
     @given(weather_data=valid_weather_data(), location=valid_location())
     @settings(max_examples=100)

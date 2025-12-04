@@ -210,9 +210,9 @@ class TestWeatherCollector:
         weather = parsed["weather"]
         assert weather["temperature"] == 28.5
         assert weather["humidity"] == 65
-        assert weather["wind_speed"] == 12.3
+        assert weather["windSpeed"] == 12.3
         assert weather["condition"] == "partly_cloudy"
-        assert weather["rain_probability"] == 45
+        assert weather["rainProbability"] == 45
 
 
 class TestWeatherCollectorIntegration:
@@ -261,9 +261,9 @@ class TestWeatherCollectorIntegration:
 
         assert parsed["weather"]["temperature"] == 22.0
         assert parsed["weather"]["humidity"] == 70
-        assert parsed["weather"]["wind_speed"] == 8.5
+        assert parsed["weather"]["windSpeed"] == 8.5
         assert parsed["weather"]["condition"] == "rain"
-        assert parsed["weather"]["rain_probability"] == 80
+        assert parsed["weather"]["rainProbability"] == 80
         assert parsed["source"] == "open-meteo"
 
     @patch("src.collector.QueuePublisher")

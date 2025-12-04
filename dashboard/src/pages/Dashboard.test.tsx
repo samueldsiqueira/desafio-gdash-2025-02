@@ -6,19 +6,42 @@ import { WeatherLog, PaginatedResponse } from '@/types'
 
 // Mock the weather service
 const mockGetLogs = vi.fn()
+const mockGetInsights = vi.fn()
 const mockExportCsv = vi.fn()
 const mockExportXlsx = vi.fn()
+
+const mockInsightsData = {
+  period: {
+    start: '2025-12-03T00:00:00Z',
+    end: '2025-12-03T23:59:59Z',
+  },
+  statistics: {
+    avgTemperature: 27.75,
+    avgHumidity: 67.5,
+    avgWindSpeed: 11.4,
+    maxTemperature: 28.5,
+    minTemperature: 27.0,
+  },
+  trends: {
+    temperatureTrend: 'rising' as const,
+    humidityTrend: 'stable' as const,
+  },
+  classification: 'warm' as const,
+  alerts: [],
+  comfortScore: 75,
+  summary: 'Condições climáticas agradáveis com temperatura amena.',
+}
 
 vi.mock('@/services/weather', () => ({
   default: {
     getLogs: () => mockGetLogs(),
-    getInsights: vi.fn().mockResolvedValue({}),
+    getInsights: () => mockGetInsights(),
     exportCsv: () => mockExportCsv(),
     exportXlsx: () => mockExportXlsx(),
   },
   weatherService: {
     getLogs: () => mockGetLogs(),
-    getInsights: vi.fn().mockResolvedValue({}),
+    getInsights: () => mockGetInsights(),
     exportCsv: () => mockExportCsv(),
     exportXlsx: () => mockExportXlsx(),
   },
@@ -75,6 +98,7 @@ describe('Dashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetLogs.mockResolvedValue(mockPaginatedResponse)
+    mockGetInsights.mockResolvedValue(mockInsightsData)
   })
 
   describe('Weather Cards', () => {
