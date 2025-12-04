@@ -48,4 +48,19 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token');
     }
   }
+
+  async getProfile(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
+  }
 }
