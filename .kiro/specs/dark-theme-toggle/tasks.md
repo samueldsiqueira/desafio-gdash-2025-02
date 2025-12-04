@@ -1,0 +1,58 @@
+# Plano de Implementação
+
+- [x] 1. Criar ThemeContext e ThemeProvider
+  - [x] 1.1 Criar arquivo `dashboard/src/contexts/ThemeContext.tsx` com tipos e contexto
+    - Definir tipo `Theme` como `'light' | 'dark'`
+    - Definir interface `ThemeContextType` com `theme`, `toggleTheme` e `setTheme`
+    - Criar contexto com valor padrão
+    - _Requisitos: 4.2_
+  - [x] 1.2 Implementar ThemeProvider com lógica de inicialização
+    - Ler tema do localStorage na inicialização
+    - Usar preferência do sistema como fallback via `matchMedia`
+    - Aplicar classe `dark` ao `document.documentElement`
+    - Persistir mudanças no localStorage
+    - _Requisitos: 2.1, 2.2, 2.3, 4.1_
+  - [x] 1.3 Criar hook `useTheme` para acesso ao contexto
+    - Exportar hook que retorna o contexto
+    - Lançar erro se usado fora do Provider
+    - _Requisitos: 4.2_
+  - [x] 1.4 Escrever teste de propriedade para alternância de tema
+    - **Propriedade 1: Alternância inverte o tema**
+    - **Valida: Requisitos 1.1**
+  - [x] 1.5 Escrever teste de propriedade para classe CSS
+    - **Propriedade 2: Classe CSS reflete o estado do tema**
+    - **Valida: Requisitos 1.2, 4.1**
+  - [x] 1.6 Escrever teste de propriedade para persistência
+    - **Propriedade 3: Round-trip de persistência**
+    - **Valida: Requisitos 2.1, 2.2**
+  - [x] 1.7 Escrever teste de propriedade para preferência do sistema
+    - **Propriedade 4: Preferência do sistema como padrão**
+    - **Valida: Requisitos 2.3**
+  - [x] 1.8 Escrever teste de propriedade para serialização
+    - **Propriedade 5: Serialização round-trip**
+    - **Valida: Requisitos 4.3**
+
+- [x] 2. Criar componente ThemeToggle
+  - [x] 2.1 Criar arquivo `dashboard/src/components/ui/theme-toggle.tsx`
+    - Implementar botão com ícones de sol e lua
+    - Usar hook `useTheme` para obter estado e função de alternância
+    - Exibir ícone de sol quando tema escuro, lua quando claro
+    - Adicionar estilos de hover para feedback visual
+    - _Requisitos: 1.1, 1.2, 1.3, 1.4, 3.3_
+  - [x] 2.2 Escrever testes unitários para ThemeToggle
+    - Testar renderização do ícone correto para cada tema
+    - Testar que clique chama toggleTheme
+    - _Requisitos: 1.3, 1.4_
+
+- [x] 3. Integrar tema na aplicação
+  - [x] 3.1 Adicionar ThemeProvider ao App.tsx
+    - Envolver a aplicação com ThemeProvider
+    - Posicionar antes do AuthProvider
+    - _Requisitos: 4.1, 4.2_
+  - [x] 3.2 Adicionar ThemeToggle ao Header/Layout
+    - Importar e renderizar ThemeToggle no cabeçalho
+    - Posicionar no canto superior direito
+    - _Requisitos: 3.1, 3.2_
+
+- [x] 4. Checkpoint - Garantir que todos os testes passam
+  - Garantir que todos os testes passam, perguntar ao usuário se surgirem dúvidas.

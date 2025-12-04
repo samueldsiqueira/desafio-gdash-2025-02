@@ -1,5 +1,6 @@
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { LogOut, Cloud, User } from 'lucide-react'
 
 export function Header() {
@@ -14,6 +15,7 @@ export function Header() {
         </div>
         
         <div className="flex flex-1 items-center justify-end space-x-4">
+          <ThemeToggle />
           {user && (
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">

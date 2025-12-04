@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from './Layout'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import * as AuthContext from '@/contexts/AuthContext'
 
 const mockUseAuth = vi.fn()
@@ -9,15 +10,17 @@ vi.spyOn(AuthContext, 'useAuth').mockImplementation(mockUseAuth)
 
 function renderWithRouter(initialRoute = '/') {
   return render(
-    <MemoryRouter initialEntries={[initialRoute]}>
-      <Routes>
-        <Route path="/login" element={<div>Login Page</div>} />
-        <Route path="/" element={<Layout />}>
-          <Route index element={<div>Dashboard Content</div>} />
-          <Route path="dashboard" element={<div>Dashboard Content</div>} />
-        </Route>
-      </Routes>
-    </MemoryRouter>
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[initialRoute]}>
+        <Routes>
+          <Route path="/login" element={<div>Login Page</div>} />
+          <Route path="/" element={<Layout />}>
+            <Route index element={<div>Dashboard Content</div>} />
+            <Route path="dashboard" element={<div>Dashboard Content</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>
   )
 }
 
