@@ -233,4 +233,40 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('Unit Tests - Get Profile', () => {
+    it('should return user profile for valid email', async () => {
+      const mockUser = {
+        _id: 'user-id-123',
+        email: 'test@example.com',
+        password: 'hashedpassword',
+        name: 'Test User',
+        role: 'user',
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-02'),
+      };
+
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(mockUser as any);
+
+      const result = await authService.getProfile('test@example.com');
+
+      expect(result).toEqual({
+        _id: mockUser._id,
+        email: mockUser.email,
+        name: mockUser.name,
+        role: mockUser.role,
+        createdAt: mockUser.createdAt,
+        updatedAt: mockUser.updatedAt,
+      });
+      expect(result).not.toHaveProperty('password');
+    });
+
+    it('should throw UnauthorizedException for non-existent user', async () => {
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
+
+      await expect(authService.getProfile('nonexistent@example.com')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
 });
